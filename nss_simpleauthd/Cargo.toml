@@ -1,14 +1,14 @@
 [package]
-name = "nss_cosiauth"
+name = "nss_simpleauth"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "nss_cosiauthd"
+name = "nss_simpleauthd"
 crate-type = [ "cdylib" ]
 
 [dependencies]
-libnss = { path = "/home/ember/dev/libnss-rs/libnss" }
+libnss = "0.5"
 libc = "0.2"
 lazy_static = "1.4"
 tokio = { version = "1", features = ["full"] }

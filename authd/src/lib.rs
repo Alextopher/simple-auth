@@ -31,7 +31,7 @@ impl FromStr for SocketName {
                         u16::from_str(r).map_err(|e| anyhow::anyhow!(e.to_string()))?,
                     ))
                 } else {
-                    Err(anyhow::anyhow!("not a socket addr & missing port for dns, example: auth.cosi.clarkson.edu:8765"))
+                    Err(anyhow::anyhow!("not a socket addr & missing port for dns, example: auth.simple.clarkson.edu:8765"))
                 }
             }
         }

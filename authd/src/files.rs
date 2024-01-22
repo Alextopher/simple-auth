@@ -120,13 +120,13 @@ impl Files {
             // requires 9 inputs
             let name = split.next().unwrap().to_owned();
             let passwd = split.next().unwrap().to_owned();
-            let last_change = split.next().map(|i| i.parse::<i64>().unwrap()).unwrap();
-            let change_min_days = split.next().map(|i| i.parse::<i64>().unwrap()).unwrap();
-            let change_max_days = split.next().map(|i| i.parse::<i64>().unwrap()).unwrap();
-            let change_warn_days = split.next().map(|i| i.parse::<i64>().unwrap()).unwrap();
-            let change_inactive_days = split.next().map(|i| i.parse::<i64>().ok()).unwrap();
-            let expire_date = split.next().map(|i| i.parse::<i64>().ok()).unwrap();
-            let _unused = split.next().map(|i| i.parse::<i64>().ok()).unwrap();
+            let last_change = split.next().map(|i| i.parse::<isize>().unwrap()).unwrap();
+            let change_min_days = split.next().map(|i| i.parse::<isize>().unwrap()).unwrap();
+            let change_max_days = split.next().map(|i| i.parse::<isize>().unwrap()).unwrap();
+            let change_warn_days = split.next().map(|i| i.parse::<isize>().unwrap()).unwrap();
+            let change_inactive_days = split.next().map(|i| i.parse::<isize>().ok()).unwrap();
+            let expire_date = split.next().map(|i| i.parse::<isize>().ok()).unwrap();
+            let _unused = split.next().map(|i| i.parse::<isize>().ok()).unwrap();
 
             shadow.push(Shadow {
                 name,

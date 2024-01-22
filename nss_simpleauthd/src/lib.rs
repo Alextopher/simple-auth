@@ -41,7 +41,7 @@ impl ClientAccessControl {
                     *cl.lock().unwrap() = None;
                     #[cfg(debug_assertions)]
                     eprintln!(
-                        "nss_cosiauthd: ClientAccessControl: client timed out, closing connection."
+                        "nss_simpleauthd: ClientAccessControl: client timed out, closing connection."
                     );
                     break;
                 }
@@ -63,7 +63,7 @@ impl ClientAccessControl {
             authd::SocketName::Addr(sa) => Some(*sa),
         };
         eprintln!(
-            "nss_cosiauthd: ClientAccessControl: connecting to {:?}",
+            "nss_simpleauthd: ClientAccessControl: connecting to {:?}",
             final_sockaddr
         );
         let mut client = self.client.lock().unwrap();
@@ -89,7 +89,7 @@ lazy_static::lazy_static! {
     static ref RPC: Mutex<ClientAccessControl> = Mutex::new(ClientAccessControl::default());
     static ref RT: Runtime = runtime::Builder::new_multi_thread().worker_threads(2).enable_io().enable_time().build().expect("could not initialize tokio runtime");
     static ref CFG: NssConfig = {
-        let mut cfg: NssConfig =  toml::from_slice(std::fs::read(authd::find_config_dir().map(|cd| cd.join("nss_cosiauthd.toml")).expect("no nss_cosiauthd.toml found!")).unwrap().as_slice()).unwrap();
+        let mut cfg: NssConfig =  toml::from_slice(std::fs::read(authd::find_config_dir().map(|cd| cd.join("nss_simpleauthd.toml")).expect("no nss_simpleauthd.toml found!")).unwrap().as_slice()).unwrap();
         cfg.cert = shellexpand::full(&cfg.cert).unwrap().to_string();
         cfg
     };
@@ -200,7 +200,7 @@ impl libnss::group::GroupHooks for CauthdGroup {
 
 use libnss::passwd::PasswdHooks;
 #[no_mangle]
-extern "C" fn _nss_cosiauthd_setpwent() -> c_int {
+extern "C" fn _nss_simpleauthd_setpwent() -> c_int {
     let mut iter: MutexGuard<Iterator<Passwd>> = PASSWD_ITERATOR.lock().unwrap();
 
     let status = match CauthdPasswd::get_all_entries() {
@@ -212,13 +212,13 @@ extern "C" fn _nss_cosiauthd_setpwent() -> c_int {
 }
 
 #[no_mangle]
-extern "C" fn _nss_cosiauthd_endpwent() -> c_int {
+extern "C" fn _nss_simpleauthd_endpwent() -> c_int {
     let mut iter: MutexGuard<Iterator<Passwd>> = PASSWD_ITERATOR.lock().unwrap();
     iter.close() as c_int
 }
 
 #[no_mangle]
-unsafe extern "C" fn _nss_cosiauthd_getpwent_r(
+unsafe extern "C" fn _nss_simpleauthd_getpwent_r(
     result: *mut CPasswd,
     buf: *mut libc::c_char,
     buflen: libc::size_t,
@@ -229,7 +229,7 @@ unsafe extern "C" fn _nss_cosiauthd_getpwent_r(
 }
 
 #[no_mangle]
-unsafe extern "C" fn _nss_cosiauthd_getpwuid_r(
+unsafe extern "C" fn _nss_simpleauthd_getpwuid_r(
     uid: libc::uid_t,
     result: *mut CPasswd,
     buf: *mut libc::c_char,
@@ -240,7 +240,7 @@ unsafe extern "C" fn _nss_cosiauthd_getpwuid_r(
 }
 
 #[no_mangle]
-unsafe extern "C" fn nss_cosiauthd_getpwnam_r(
+unsafe extern "C" fn nss_simpleauthd_getpwnam_r(
     name_: *const libc::c_char,
     result: *mut CPasswd,
     buf: *mut libc::c_char,
@@ -257,7 +257,7 @@ unsafe extern "C" fn nss_cosiauthd_getpwnam_r(
     response.to_c(result, buf, buflen, errnop) as c_int
 }
 #[no_mangle]
-extern "C" fn _nss_cosiauthd_setgrent() -> c_int {
+extern "C" fn _nss_simpleauthd_setgrent() -> c_int {
     let mut iter: MutexGuard<Iterator<Group>> = GROUP_ITERATOR.lock().unwrap();
 
     let status = match CauthdGroup::get_all_entries() {
@@ -269,13 +269,13 @@ extern "C" fn _nss_cosiauthd_setgrent() -> c_int {
 }
 
 #[no_mangle]
-extern "C" fn _nss_cosiauthd_endgrent() -> c_int {
+extern "C" fn _nss_simpleauthd_endgrent() -> c_int {
     let mut iter: MutexGuard<Iterator<Group>> = GROUP_ITERATOR.lock().unwrap();
     iter.close() as c_int
 }
 
 #[no_mangle]
-unsafe extern "C" fn _nss_cosiauthd_getgrent_r(
+unsafe extern "C" fn _nss_simpleauthd_getgrent_r(
     result: *mut CGroup,
     buf: *mut libc::c_char,
     buflen: libc::size_t,
@@ -286,7 +286,7 @@ unsafe extern "C" fn _nss_cosiauthd_getgrent_r(
 }
 
 #[no_mangle]
-unsafe extern "C" fn _nss_cosiauthd_getgrgid_r(
+unsafe extern "C" fn _nss_simpleauthd_getgrgid_r(
     uid: libc::uid_t,
     result: *mut CGroup,
     buf: *mut libc::c_char,
@@ -297,7 +297,7 @@ unsafe extern "C" fn _nss_cosiauthd_getgrgid_r(
 }
 
 #[no_mangle]
-unsafe extern "C" fn nss_cosiauthd_getgrnam_r(
+unsafe extern "C" fn nss_simpleauthd_getgrnam_r(
     name_: *const libc::c_char,
     result: *mut CGroup,
     buf: *mut libc::c_char,
@@ -317,7 +317,7 @@ unsafe extern "C" fn nss_cosiauthd_getgrnam_r(
 use libnss::shadow::{CShadow, Shadow, ShadowHooks};
 
 #[no_mangle]
-extern "C" fn _nss_cosiauthd_setspent() -> c_int {
+extern "C" fn _nss_simpleauthd_setspent() -> c_int {
     let mut iter: MutexGuard<Iterator<Shadow>> = SHADOW_ITERATOR.lock().unwrap();
 
     let status = match CauthdShadow::get_all_entries() {
@@ -329,13 +329,13 @@ extern "C" fn _nss_cosiauthd_setspent() -> c_int {
 }
 
 #[no_mangle]
-extern "C" fn _nss_cosiauthd_endspent() -> c_int {
+extern "C" fn _nss_simpleauthd_endspent() -> c_int {
     let mut iter: MutexGuard<Iterator<Shadow>> = SHADOW_ITERATOR.lock().unwrap();
     iter.close() as c_int
 }
 
 #[no_mangle]
-unsafe extern "C" fn _nss_cosiauthd_getspent_r(
+unsafe extern "C" fn _nss_simpleauthd_getspent_r(
     result: *mut CShadow,
     buf: *mut libc::c_char,
     buflen: libc::size_t,
@@ -346,7 +346,7 @@ unsafe extern "C" fn _nss_cosiauthd_getspent_r(
 }
 
 #[no_mangle]
-unsafe extern "C" fn nss_cosiauthd_getspnam_r(
+unsafe extern "C" fn nss_simpleauthd_getspnam_r(
     name_: *const libc::c_char,
     result: *mut CShadow,
     buf: *mut libc::c_char,

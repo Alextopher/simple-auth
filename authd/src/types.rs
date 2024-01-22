@@ -92,12 +92,12 @@ pub struct Shadow {
     pub name: String,
     pub passwd: String,
     /// days since Jan 1st 1970
-    pub last_change: i64,
-    pub change_min_days: i64,
-    pub change_max_days: i64,
-    pub change_warn_days: i64,
-    pub change_inactive_days: Option<i64>,
-    pub expire_date: Option<i64>,
+    pub last_change: isize,
+    pub change_min_days: isize,
+    pub change_max_days: isize,
+    pub change_warn_days: isize,
+    pub change_inactive_days: Option<isize>,
+    pub expire_date: Option<isize>,
 }
 
 impl std::fmt::Display for Shadow {
